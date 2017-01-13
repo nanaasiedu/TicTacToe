@@ -16,6 +16,7 @@ public class TicTacToeModel {
         player2 = (isHuman ? new Human() : new ArtificalIntelligence());
     }
 
+    public void setTurn(boolean isPlayer1turn) {
         this.isPlayer1turn = isPlayer1turn;
     }
 
