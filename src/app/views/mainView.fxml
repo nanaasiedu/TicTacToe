@@ -6,9 +6,9 @@
 
 <AnchorPane prefHeight="341.0" prefWidth="581.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.controllers.MainWindowController">
    <children>
-      <Button layoutX="369.0" layoutY="27.0" mnemonicParsing="false" onAction="#openPlayerSelectScene" prefHeight="79.0" prefWidth="176.0" text="Human 1 vs Human 2" />
-      <Button layoutX="369.0" layoutY="131.0" mnemonicParsing="false" prefHeight="79.0" prefWidth="176.0" text="Human 1 vs AI 1" />
-      <Button layoutX="369.0" layoutY="236.0" mnemonicParsing="false" prefHeight="79.0" prefWidth="176.0" text="AI 1 vs AI 2" />
+      <Button fx:id="HH_but" layoutX="369.0" layoutY="27.0" mnemonicParsing="false" onAction="#openPlayerSelectScene" prefHeight="79.0" prefWidth="176.0" text="Human 1 vs Human 2" />
+      <Button fx:id="HA_but" layoutX="369.0" layoutY="131.0" mnemonicParsing="false" onAction="#openPlayerSelectScene" prefHeight="79.0" prefWidth="176.0" text="Human 1 vs AI 1" />
+      <Button fx:id="AA_but" layoutX="369.0" layoutY="236.0" mnemonicParsing="false" onAction="#openPlayerSelectScene" prefHeight="79.0" prefWidth="176.0" text="AI 1 vs AI 2" />
       <DialogPane contentText="Select a mode to play!" headerText="ULTIMATE TIC TAC TOE!" layoutX="86.0" layoutY="148.0" prefHeight="14.0" prefWidth="225.0" />
    </children>
 </AnchorPane>

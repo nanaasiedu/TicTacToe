@@ -1,5 +1,6 @@
 package app;
 
+import app.controllers.GameController;
 import app.controllers.MainWindowController;
 import app.controllers.PlayerSelectController;
 import javafx.application.Application;
@@ -59,6 +60,26 @@ public class Main extends Application {
 
             PlayerSelectController psController = loader.getController();
             psController.setModel(model);
+
+            Scene scene = new Scene(pane);
+
+            primaryStage.close();
+            primaryStage.setScene(scene);
+
+            primaryStage.show();
+
+        } catch (IOException e) {
+
+        }
+    }
+
+    public void GameWindow() {
+        try {
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/app/views/GameView.fxml"));
+            AnchorPane pane = loader.load();
+
+            GameController gameController = loader.getController();
+            gameController.setModel(model);
 
             Scene scene = new Scene(pane);
 
