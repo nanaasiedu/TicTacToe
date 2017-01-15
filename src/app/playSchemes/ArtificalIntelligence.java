@@ -1,10 +1,16 @@
 package app.playSchemes;
 
 import app.Coordinate;
+import app.Icon;
+import app.TicTacToeModel;
 
-public class ArtificalIntelligence implements Player {
+public class ArtificalIntelligence extends Player {
+    public ArtificalIntelligence(Icon icon) {
+        super(icon);
+    }
+
     @Override
-    public Coordinate makeMove() {
+    public Coordinate makeMove(TicTacToeModel model) {
         return null;
     }
 }

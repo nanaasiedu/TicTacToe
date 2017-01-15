@@ -1,13 +1,20 @@
 package app.playSchemes;
 
 import app.Coordinate;
+import app.Icon;
+import app.TicTacToeModel;
 
-/**
- * Created by nman on 13/01/2017.
- */
-public class Human implements Player {
+public class Human extends Player {
+    public Human(Icon icon) {
+        super(icon);
+    }
+
     @Override
-    public Coordinate makeMove() {
+    public synchronized Coordinate makeMove(TicTacToeModel model) {
+        model.allowClicks();
+        model.waitOnSignal();
+
+        System.out.println("IM FREEE");
         return null;
     }
 }

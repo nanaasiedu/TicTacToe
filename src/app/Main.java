@@ -8,6 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -77,20 +78,28 @@ public class Main extends Application {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/app/views/GameView.fxml"));
             AnchorPane pane = loader.load();
+            GridPane gridPane = (GridPane) pane.lookup("#buttonGrid");
+            BoardSpace[][] board = model.getBoard();
+
+            for (int row = 0; row < board.length; row++) {
+                for (int col = 0; col < board[0].length; col++) {
+                    gridPane.add(board[row][col], col, row, GameController.GRID_SPAN, GameController.GRID_SPAN);
+                }
+            }
 
             GameController gameController = loader.getController();
             gameController.setModel(model);
+            model.setController(gameController);
 
             Scene scene = new Scene(pane);
-
             primaryStage.close();
             primaryStage.setScene(scene);
-
             primaryStage.show();
 
-        } catch (IOException e) {
+        } catch (IOException e) {}
 
-        }
+        // Begin game
+        (new Thread(model)).start();
     }
 
     public static void main(String[] args) {

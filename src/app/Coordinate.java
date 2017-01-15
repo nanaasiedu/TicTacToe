@@ -16,7 +16,5 @@ public class Coordinate {
         return row;
     }
 
-    public int getCol() {
-        return col;
-    }
+    public int getCol() {return col;}
 }
