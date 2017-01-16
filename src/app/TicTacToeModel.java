@@ -115,13 +115,16 @@ public class TicTacToeModel implements Runnable {
             Coordinate coor;
             Player currentPlayer = getCurrentPlayer();
 
+            setGameText((isPlayer1turn ? "Player 1 " : "Player 2 ") +
+                                   (currentPlayer.isHuman() ? GameController.HUMAN_TEXT : GameController.AI_TEXT));
+
             coor = currentPlayer.makeMove(this);
             performMove(coor.getRow(), coor.getCol());
 
             switchTurns();
         }
 
-        controller.setGameText(GameController.ENG_GAME_TEXT);
+        setGameText(GameController.ENG_GAME_TEXT);
     }
 
     public Coordinate waitOnSignal() {
@@ -134,5 +137,9 @@ public class TicTacToeModel implements Runnable {
         }
 
         return clickedCoordinate;
+    }
+
+    public void setGameText(String text) {
+        controller.setGameText(text);
     }
 }

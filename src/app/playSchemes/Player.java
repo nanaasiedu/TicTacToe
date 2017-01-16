@@ -16,6 +16,8 @@ public abstract class Player {
 
     abstract public Coordinate makeMove(TicTacToeModel model);
 
+    abstract public boolean isHuman();
+
     public Icon getIcon() {
         return icon;
     }

@@ -10,6 +10,11 @@ public class ArtificalIntelligence extends Player {
     }
 
     @Override
+    public boolean isHuman() {
+        return false;
+    }
+
+    @Override
     public Coordinate makeMove(TicTacToeModel model) {
         return new Coordinate(1,1);
     }
