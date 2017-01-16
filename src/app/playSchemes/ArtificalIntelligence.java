@@ -11,6 +11,6 @@ public class ArtificalIntelligence extends Player {
 
     @Override
     public Coordinate makeMove(TicTacToeModel model) {
-        return null;
+        return new Coordinate(1,1);
     }
 }

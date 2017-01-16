@@ -2,10 +2,7 @@ package app;
 
 import app.controllers.GameController;
 import app.playSchemes.*;
-import javafx.scene.control.Label;
-
-import java.util.ArrayList;
-import java.util.List;
+import javafx.application.Platform;
 
 public class TicTacToeModel implements Runnable {
     public static int BOARD_DIMENSION = 3;
@@ -17,7 +14,8 @@ public class TicTacToeModel implements Runnable {
     private boolean isPlayer1turn = true;
     private boolean allowedToMove = false;
     private GameController controller;
-    private Object signal = new Object();
+    private Object clickSignal = new Object();
+    private boolean validMove = false; // used for iconSetSignal
     private Coordinate clickedCoordinate;
 
     public TicTacToeModel() {
@@ -30,7 +28,7 @@ public class TicTacToeModel implements Runnable {
                 board[row][col].setOnAction(event -> {
                     if (!allowedToMove) return;
                     BoardSpace space = (BoardSpace)event.getSource();
-                    allowedToMove = false;
+                    disableClicks();
 
                     clickedCoordinate = new Coordinate(space.getRow(), space.getCol());
                     notifyPlayers();
@@ -41,8 +39,8 @@ public class TicTacToeModel implements Runnable {
     }
 
     private void notifyPlayers() {
-        synchronized (signal) {
-            signal.notifyAll();
+        synchronized (clickSignal) {
+            clickSignal.notifyAll();
         }
     }
 
@@ -72,13 +70,26 @@ public class TicTacToeModel implements Runnable {
     }
 
     private void performMove(int row, int col) {
-        //assert(!gameOver());
-        //assert(isMoveValid(row, col));
+        assert(!gameOver());
+        assert(isMoveValid(row, col));
+
+        validMove = true;
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                Icon icon = (isPlayer1turn ? player1.getIcon() : player2.getIcon());
+                board[row][col].setIcon(icon);
+            }
+        });
 
         numMovesMade++;
     }
 
-    private boolean isMoveValid(int row, int col) {
+    private Player getCurrentPlayer() {
+        return (isPlayer1turn ? player1 : player2);
+    }
+
+    public boolean isMoveValid(int row, int col) {
         return board[row][col].getIcon() == Icon.EMPTY;
     }
 
@@ -94,34 +105,34 @@ public class TicTacToeModel implements Runnable {
         allowedToMove = true;
     }
 
+    private void disableClicks() {
+        allowedToMove = false;
+    }
+
     public void run() {
         assert (isGameSet());
         while (!gameOver()) {
             Coordinate coor;
+            Player currentPlayer = getCurrentPlayer();
 
-            if (isPlayer1turn) {
-                coor = player1.makeMove(this);
-            } else {
-                coor = player2.makeMove(this);
-            }
-
-            performMove(1, 1); // TODO: CHANGE TO COOR
+            coor = currentPlayer.makeMove(this);
+            performMove(coor.getRow(), coor.getCol());
 
             switchTurns();
         }
+
+        controller.setGameText(GameController.ENG_GAME_TEXT);
     }
 
-    public Coordinate getClickedCoordinates() {
-        return clickedCoordinate;
-    }
-
-    public void waitOnSignal() {
-        synchronized (signal) {
+    public Coordinate waitOnSignal() {
+        synchronized (clickSignal) {
             try {
-                signal.wait();
+                clickSignal.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+
+        return clickedCoordinate;
     }
 }

@@ -11,10 +11,19 @@ public class Human extends Player {
 
     @Override
     public synchronized Coordinate makeMove(TicTacToeModel model) {
-        model.allowClicks();
-        model.waitOnSignal();
+        // Coordinate of square the user clicks
+        Coordinate clickedCoordinate;
 
-        System.out.println("IM FREEE");
-        return null;
+        do {
+            // The buttons are activated to allow the model to detect button clicks
+            model.allowClicks();
+            // The game thread sleeps on a signal. It is woken up by a button click event and provided with the
+            // registered coordinates of the clicked square
+            clickedCoordinate = model.waitOnSignal();
+
+        } while (clickedCoordinate == null &&
+                 !model.isMoveValid(clickedCoordinate.getRow(), clickedCoordinate.getCol()));
+
+        return clickedCoordinate;
     }
 }

@@ -1,10 +1,14 @@
 package app;
 
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class BoardSpace extends Button {
     public static double DEFAULT_HEIGHT = 200;
     public static double DEFAULT_WIDTH = 200;
+    private static String NOUGHT_IMG = "img/nought.jpg";
+    private static String CROSS_IMG = "img/cross.jpg";
     private Icon icon;
     private int row;
     private int col;
@@ -32,9 +36,18 @@ public class BoardSpace extends Button {
 
     public void setIcon(Icon icon) {
         this.icon = icon;
+        setSpaceImage(icon);
     }
 
-    private void setSpaceImage() {
+    private void setSpaceImage(Icon icon) {
+        if (icon == Icon.EMPTY) return;
 
+        String imgLocation = (icon == Icon.CROSSES ? CROSS_IMG : NOUGHT_IMG);
+        Image iconImage = new Image(getClass().getResourceAsStream(imgLocation));
+        ImageView iconImageView = new ImageView(iconImage);
+
+        iconImageView.setFitHeight(DEFAULT_HEIGHT);
+        iconImageView.setFitWidth(DEFAULT_WIDTH);
+        setGraphic(new ImageView(iconImage));
     }
 }

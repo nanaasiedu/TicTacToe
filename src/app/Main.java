@@ -4,9 +4,11 @@ import app.controllers.GameController;
 import app.controllers.MainWindowController;
 import app.controllers.PlayerSelectController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
@@ -89,6 +91,7 @@ public class Main extends Application {
 
             GameController gameController = loader.getController();
             gameController.setModel(model);
+            gameController.setGameLabel((Label)pane.lookup("#GameDescription_txt"));
             model.setController(gameController);
 
             Scene scene = new Scene(pane);
