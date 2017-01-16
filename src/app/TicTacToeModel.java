@@ -34,6 +34,11 @@ public class TicTacToeModel implements Runnable {
     public TicTacToeModel() {
         board = new BoardSpace[BOARD_DIMENSION][BOARD_DIMENSION];
 
+        clearBoard();
+
+    }
+
+    private void clearBoard() {
         for (int row = 0; row < BOARD_DIMENSION; row++) {
             for (int col = 0; col < BOARD_DIMENSION; col++) {
                 board[row][col] = new BoardSpace(Icon.EMPTY, row, col);
@@ -48,7 +53,6 @@ public class TicTacToeModel implements Runnable {
                 });
             }
         }
-
     }
 
     public BoardSpace[][] getBoard() {
@@ -82,13 +86,7 @@ public class TicTacToeModel implements Runnable {
 
         validMove = true;
         Icon icon = (isPlayer1turn ? player1.getIcon() : player2.getIcon());
-
-        Platform.runLater(new Runnable(){
-            @Override
-            public void run() {
-                board[row][col].setIcon(icon);
-            }
-        });
+        board[row][col].setIcon(icon);
 
         if (isPlayer1turn) {
             player1ColCount[col]++;

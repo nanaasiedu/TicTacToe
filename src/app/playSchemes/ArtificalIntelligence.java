@@ -1,10 +1,19 @@
 package app.playSchemes;
 
+import app.BoardSpace;
 import app.Coordinate;
 import app.Icon;
 import app.TicTacToeModel;
 
+import javax.crypto.spec.DESedeKeySpec;
+import java.util.ArrayList;
+
 public class ArtificalIntelligence extends Player {
+    private static int SLEEP_TIME = 5000;
+    private static int WIN_BONUS = 1;
+    private static int DRAW_BONUS = 0;
+    private static int LOSE_BONUS = -1;
+
     public ArtificalIntelligence(Icon icon) {
         super(icon);
     }
@@ -16,6 +25,184 @@ public class ArtificalIntelligence extends Player {
 
     @Override
     public Coordinate makeMove(TicTacToeModel model) {
-        return new Coordinate(1,1);
+        /*try {
+            wait(SLEEP_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
+
+        BoardSpace[][] board = model.getBoard();
+        PossibleBoard possibleBoard = initPossibleBoard(board, getIcon());
+
+        return minMax(possibleBoard, getIcon()).moveToMake;
+    }
+
+    private PossibleBoard initPossibleBoard(BoardSpace[][] board, Icon icon) {
+        PossibleBoard possibleBoard = new PossibleBoard();
+        possibleBoard.board = board;
+
+        for (int row = 0; row < TicTacToeModel.BOARD_DIMENSION; row++) {
+            for (int col = 0; col < TicTacToeModel.BOARD_DIMENSION; col++) {
+                if (board[row][col].getIcon() == icon) {
+                  possibleBoard.rowScore[row]++;
+                  possibleBoard.colScore[col]++;
+                  if (row == col) possibleBoard.leftDiagScore++;
+                  if (row + col == TicTacToeModel.BOARD_DIMENSION - 1) possibleBoard.rightDiagScore++;
+
+                } else if (board[row][col].getIcon() != Icon.EMPTY) {
+                    possibleBoard.rowScore[row]--;
+                    possibleBoard.colScore[col]--;
+                    if (row == col) possibleBoard.leftDiagScore--;
+                    if (row + col == TicTacToeModel.BOARD_DIMENSION - 1) possibleBoard.rightDiagScore--;
+
+                }
+
+                if (board[row][col].getIcon() != Icon.EMPTY) possibleBoard.freeSpace--;
+            }
+        }
+
+        return possibleBoard;
+    }
+
+    private ArrayList<PossibleBoard> getPossibleNextBoards(PossibleBoard possibleBoard, Icon icon) {
+        ArrayList<PossibleBoard> possibleNextBoards = new ArrayList<PossibleBoard>();
+        BoardSpace[][] board = possibleBoard.board;
+
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[0].length; col++) {
+                if (board[row][col].getIcon() == Icon.EMPTY) {
+                    PossibleBoard newPosBoard = new PossibleBoard();
+                    BoardSpace[][] newBoard;
+                    newPosBoard.coor = new Coordinate(row, col);
+                    
+                    // Cloning
+                    newBoard = boardClone(board);
+                    newPosBoard.board = newBoard;
+
+                    newBoard[row][col].setIcon(icon);
+
+                    // If the icon used is the players icon, then we get a bonus to our score
+                    // If the icon belongs to the opposing player, then we subtract the bonus
+                    int scoreBonus = (icon == getIcon() ? 1 : -1);
+                    newPosBoard.rowScore[row] = possibleBoard.rowScore[row] + scoreBonus;
+                    newPosBoard.colScore[col] = possibleBoard.colScore[col] + scoreBonus;
+                    if (row == col) newPosBoard.leftDiagScore = possibleBoard.leftDiagScore + scoreBonus;
+                    if (row + col == TicTacToeModel.BOARD_DIMENSION - 1) newPosBoard.rightDiagScore = possibleBoard.rightDiagScore + scoreBonus;
+                    newPosBoard.freeSpace = possibleBoard.freeSpace - 1;
+
+                    possibleNextBoards.add(newPosBoard);
+
+                }
+            }
+        }
+
+        return possibleNextBoards;
+    }
+
+    private BoardSpace[][] boardClone(BoardSpace[][] board) {
+        BoardSpace[][] newBoard = new BoardSpace[board.length][board[0].length];
+
+        for (int row = 0; row < TicTacToeModel.BOARD_DIMENSION; row++) {
+            for (int col = 0; col < TicTacToeModel.BOARD_DIMENSION; col++) {
+                newBoard[row][col] = board[row][col].clone();
+            }
+        }
+
+        return newBoard;
+    }
+
+    // Returns the coordinates of the best possible move that minimises or maximises the players score depending
+    // on the provided icon
+    private Outcome minMax(PossibleBoard posBoard, Icon icon) {
+        Outcome outcome = new Outcome();
+        Result result = posBoard.determineOutcome();
+
+        // BASE CASE
+        if (result.gameComplete()) {
+            outcome.score = result.getBonus();
+            return outcome;
+        }
+
+        ArrayList<PossibleBoard> posNextBoards = getPossibleNextBoards(posBoard, getIcon());
+        int optimalScore = (icon == getIcon() ? Integer.MIN_VALUE : Integer.MAX_VALUE);
+        Coordinate optimalCoor = new Coordinate(0,0);
+
+        for (PossibleBoard posNextBoard : posNextBoards) {
+            Outcome nextOutcome = minMax(posNextBoard, (icon == Icon.CROSSES ? Icon.NOUGHTS : Icon.CROSSES));
+            outcome.score += nextOutcome.score;
+
+            if (icon == getIcon() && nextOutcome.score > optimalScore) {
+                optimalScore = nextOutcome.score;
+                optimalCoor = nextOutcome.moveToMake;
+
+            } else if (icon != getIcon() && nextOutcome.score < optimalScore){
+                optimalScore = nextOutcome.score;
+                optimalCoor = nextOutcome.moveToMake;
+            }
+        }
+
+        outcome.moveToMake = optimalCoor;
+        return outcome;
+    }
+
+    // Optimisation to avoid O(n^2) algorithm calculating board score
+    private class PossibleBoard {
+        private BoardSpace[][] board;
+        private int[] rowScore = new int[TicTacToeModel.BOARD_DIMENSION];
+        private int[] colScore = new int[TicTacToeModel.BOARD_DIMENSION];
+        private int leftDiagScore = 0;
+        private int rightDiagScore = 0;
+        private int freeSpace = TicTacToeModel.BOARD_DIMENSION*TicTacToeModel.BOARD_DIMENSION;
+        private Coordinate coor;
+
+        public Result determineOutcome() {
+            for (int row = 0; row < TicTacToeModel.BOARD_DIMENSION; row++) {
+                if (rowScore[row] == TicTacToeModel.BOARD_DIMENSION){
+                    return Result.WIN;
+                } else if (rowScore[row] == -TicTacToeModel.BOARD_DIMENSION) {
+                    return Result.LOSE;
+                }
+            }
+
+            for (int col = 0; col < TicTacToeModel.BOARD_DIMENSION; col++) {
+                if (colScore[col] == TicTacToeModel.BOARD_DIMENSION){
+                    return Result.WIN;
+                } else if (colScore[col] == -TicTacToeModel.BOARD_DIMENSION) {
+                    return Result.LOSE;
+                }
+            }
+
+            if (leftDiagScore == TicTacToeModel.BOARD_DIMENSION) return Result.WIN;
+            if (rightDiagScore == TicTacToeModel.BOARD_DIMENSION) return Result.WIN;
+            if (leftDiagScore == -TicTacToeModel.BOARD_DIMENSION) return Result.LOSE;
+            if (rightDiagScore == -TicTacToeModel.BOARD_DIMENSION) return Result.LOSE;
+
+            if (freeSpace == 0) return Result.DRAW;
+
+            return Result.INCOMPLETE;
+        }
+    }
+
+    private class Outcome {
+        private Coordinate moveToMake;
+        private int score;
+    }
+
+    private enum Result {
+        WIN(WIN_BONUS), LOSE(LOSE_BONUS), DRAW(DRAW_BONUS), INCOMPLETE(-1);
+
+        private int bonus;
+
+        Result(int bonus) {
+            this.bonus = bonus;
+        }
+
+        public int getBonus() {
+            return bonus;
+        }
+
+        public boolean gameComplete() {
+            return this != INCOMPLETE;
+        }
     }
 }

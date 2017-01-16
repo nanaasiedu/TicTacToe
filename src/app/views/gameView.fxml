@@ -9,7 +9,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.controllers.GameController">
    <children>
-      <Label fx:id="GameDescription_txt" layoutX="30.0" layoutY="24.0" text="Label" />
+      <Label fx:id="GameDescription_txt" layoutX="30.0" layoutY="24.0" />
       <GridPane fx:id="buttonGrid" hgap="10.0" layoutX="30.0" layoutY="79.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" vgap="10.0">
         <columnConstraints>
           <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />

@@ -1,5 +1,6 @@
 package app;
 
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,6 +21,11 @@ public class BoardSpace extends Button {
         this.col = col;
         setPrefHeight(DEFAULT_HEIGHT);
         setPrefWidth(DEFAULT_WIDTH);
+    }
+
+    @Override
+    public BoardSpace clone() {
+        return new BoardSpace(icon, row, col);
     }
 
     public int getRow() {
@@ -48,6 +54,12 @@ public class BoardSpace extends Button {
 
         iconImageView.setFitHeight(DEFAULT_HEIGHT);
         iconImageView.setFitWidth(DEFAULT_WIDTH);
-        setGraphic(new ImageView(iconImage));
+        Platform.runLater(new Runnable(){
+            @Override
+            public void run() {
+                setGraphic(new ImageView(iconImage));
+            }
+        });
+
     }
 }
