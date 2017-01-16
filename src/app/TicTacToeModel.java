@@ -8,6 +8,19 @@ public class TicTacToeModel implements Runnable {
     public static int BOARD_DIMENSION = 3;
     private int numMovesMade = 0;
     private BoardSpace[][] board;
+
+    // Optimisation that speeds up the isGameOver method at the cost of space
+    // Stores the number of icons per row/ column/ diagonal for both players
+    // (Note: space can be saved by useing only 4 variables rather than 8)
+    private int[] player1RowCount = new int[BOARD_DIMENSION];
+    private int[] player1ColCount = new int[BOARD_DIMENSION];
+    private int player1LeftDiagCount = 0;
+    private int player1RightDiagCount = 0;
+    private int[] player2RowCount = new int[BOARD_DIMENSION];
+    private int[] player2ColCount = new int[BOARD_DIMENSION];
+    private int player2LeftDiagCount = 0;
+    private int player2RightDiagCount = 0;
+
     private Player player1;
     private Player player2;
 
@@ -38,12 +51,6 @@ public class TicTacToeModel implements Runnable {
 
     }
 
-    private void notifyPlayers() {
-        synchronized (clickSignal) {
-            clickSignal.notifyAll();
-        }
-    }
-
     public BoardSpace[][] getBoard() {
         return board;
     }
@@ -65,22 +72,39 @@ public class TicTacToeModel implements Runnable {
         return player1 != null && player2 != null && controller != null;
     }
 
-    private boolean gameOver() {
+    private boolean movesExhausted() {
         return numMovesMade >= BOARD_DIMENSION*BOARD_DIMENSION;
     }
 
     private void performMove(int row, int col) {
-        assert(!gameOver());
+        assert(!movesExhausted());
         assert(isMoveValid(row, col));
 
         validMove = true;
+        Icon icon = (isPlayer1turn ? player1.getIcon() : player2.getIcon());
+
         Platform.runLater(new Runnable(){
             @Override
             public void run() {
-                Icon icon = (isPlayer1turn ? player1.getIcon() : player2.getIcon());
                 board[row][col].setIcon(icon);
             }
         });
+
+        if (isPlayer1turn) {
+            player1ColCount[col]++;
+            player1RowCount[row]++;
+
+            if (row == col) player1LeftDiagCount++;
+            if (row + col == BOARD_DIMENSION - 1) player1RightDiagCount++;
+
+        } else {
+            player2ColCount[col]++;
+            player2RowCount[row]++;
+
+            if (row == col) player2LeftDiagCount++;
+            if (row + col == BOARD_DIMENSION - 1) player2RightDiagCount++;
+
+        }
 
         numMovesMade++;
     }
@@ -111,7 +135,9 @@ public class TicTacToeModel implements Runnable {
 
     public void run() {
         assert (isGameSet());
-        while (!gameOver()) {
+        Player winner = null;
+
+        while (!movesExhausted()) {
             Coordinate coor;
             Player currentPlayer = getCurrentPlayer();
 
@@ -121,10 +147,34 @@ public class TicTacToeModel implements Runnable {
             coor = currentPlayer.makeMove(this);
             performMove(coor.getRow(), coor.getCol());
 
+            winner = isGameOver(coor.getRow(), coor.getCol());
+            if (winner != null) break;
+
             switchTurns();
         }
 
-        setGameText(GameController.ENG_GAME_TEXT);
+        if (winner != null) {
+            setGameText(GameController.ENG_GAME_TEXT + winner);
+        } else {
+            setGameText(GameController.DRAW_TEXT);
+        }
+    }
+
+    private Player isGameOver(int row, int col) {
+            if (isPlayer1turn) {
+                if (player1RowCount[row] == BOARD_DIMENSION || player1ColCount[col] == BOARD_DIMENSION
+                        || player1LeftDiagCount == BOARD_DIMENSION || player1RightDiagCount == BOARD_DIMENSION){
+                    return player1;
+                }
+
+            } else {
+                if (player2RowCount[row] == BOARD_DIMENSION || player2ColCount[col] == BOARD_DIMENSION
+                        || player2LeftDiagCount == BOARD_DIMENSION || player2RightDiagCount == BOARD_DIMENSION){
+                    return player2;
+                }
+            }
+
+            return null;
     }
 
     public Coordinate waitOnSignal() {
@@ -137,6 +187,12 @@ public class TicTacToeModel implements Runnable {
         }
 
         return clickedCoordinate;
+    }
+
+    private void notifyPlayers() {
+        synchronized (clickSignal) {
+            clickSignal.notifyAll();
+        }
     }
 
     public void setGameText(String text) {

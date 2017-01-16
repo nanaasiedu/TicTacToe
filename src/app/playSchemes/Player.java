@@ -21,4 +21,12 @@ public abstract class Player {
     public Icon getIcon() {
         return icon;
     }
+
+    public String toString() {
+        if (icon == Icon.CROSSES) {
+            return "Crosses";
+        } else {
+            return "Noughts";
+        }
+    }
 }

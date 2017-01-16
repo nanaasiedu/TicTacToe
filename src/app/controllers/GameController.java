@@ -10,6 +10,7 @@ public class GameController extends AbstractController {
     public static String AI_TEXT = "(AI) is thinking...";
     public static String WRONG_MOVE_TEXT = "Please pick a empty square!";
     public static String ENG_GAME_TEXT = "GAME FINISHED! AND THE WINNER IS : ";
+    public static String DRAW_TEXT = "GAME IS A DRAW!!!";
 
     private Label gameLabel;
 
