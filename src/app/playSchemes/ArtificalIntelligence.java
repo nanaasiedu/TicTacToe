@@ -12,7 +12,7 @@ public class ArtificalIntelligence extends Player {
     private static int SLEEP_TIME = 5000;
     private static int WIN_BONUS = 1;
     private static int DRAW_BONUS = 0;
-    private static int LOSE_BONUS = -1;
+    private static int LOSE_BONUS = -100;
 
     public ArtificalIntelligence(Icon icon) {
         super(icon);
@@ -31,8 +31,16 @@ public class ArtificalIntelligence extends Player {
             e.printStackTrace();
         }*/
 
-        BoardSpace[][] board = model.getBoard();
-        PossibleBoard possibleBoard = initPossibleBoard(board, getIcon());
+        BoardSpace[][] board = model.getBoard(); // O(1)
+        PossibleBoard possibleBoard = initPossibleBoard(board, getIcon()); // O(n^2)
+
+        if (possibleBoard.freeSpace >= TicTacToeModel.BOARD_DIMENSION*TicTacToeModel.BOARD_DIMENSION - 1) {
+            if (board[0][0].getIcon() == Icon.EMPTY) {
+                return new Coordinate(0,0);
+            } else {
+                return new Coordinate(0, TicTacToeModel.BOARD_DIMENSION - 1);
+            }
+        }
 
         return minMax(possibleBoard, getIcon()).moveToMake;
     }
@@ -129,19 +137,20 @@ public class ArtificalIntelligence extends Player {
 
         for (PossibleBoard posNextBoard : posNextBoards) {
             Outcome nextOutcome = minMax(posNextBoard, (icon == Icon.CROSSES ? Icon.NOUGHTS : Icon.CROSSES));
-            outcome.score += nextOutcome.score;
+            //outcome.score += nextOutcome.score;
 
             if (icon == getIcon() && nextOutcome.score > optimalScore) {
                 optimalScore = nextOutcome.score;
-                optimalCoor = nextOutcome.moveToMake;
+                optimalCoor = posNextBoard.coor;
 
             } else if (icon != getIcon() && nextOutcome.score < optimalScore){
                 optimalScore = nextOutcome.score;
-                optimalCoor = nextOutcome.moveToMake;
+                optimalCoor = posNextBoard.coor;
             }
         }
 
         outcome.moveToMake = optimalCoor;
+        outcome.score = optimalScore;
         return outcome;
     }
 
@@ -189,7 +198,7 @@ public class ArtificalIntelligence extends Player {
     }
 
     private enum Result {
-        WIN(WIN_BONUS), LOSE(LOSE_BONUS), DRAW(DRAW_BONUS), INCOMPLETE(-1);
+        WIN(WIN_BONUS), LOSE(LOSE_BONUS), DRAW(DRAW_BONUS), INCOMPLETE(0);
 
         private int bonus;
 
