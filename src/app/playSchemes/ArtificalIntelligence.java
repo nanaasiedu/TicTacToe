@@ -12,7 +12,7 @@ public class ArtificalIntelligence extends Player {
     private static int SLEEP_TIME = 5000;
     private static int WIN_BONUS = 1;
     private static int DRAW_BONUS = 0;
-    private static int LOSE_BONUS = -100;
+    private static int LOSE_BONUS = -1;
 
     public ArtificalIntelligence(Icon icon) {
         super(icon);
@@ -34,7 +34,7 @@ public class ArtificalIntelligence extends Player {
         BoardSpace[][] board = model.getBoard(); // O(1)
         PossibleBoard possibleBoard = initPossibleBoard(board, getIcon()); // O(n^2)
 
-        if (possibleBoard.freeSpace >= TicTacToeModel.BOARD_DIMENSION*TicTacToeModel.BOARD_DIMENSION - 1) {
+        if (possibleBoard.freeSpace >= TicTacToeModel.BOARD_DIMENSION*TicTacToeModel.BOARD_DIMENSION-1) {
             if (board[0][0].getIcon() == Icon.EMPTY) {
                 return new Coordinate(0,0);
             } else {
@@ -42,7 +42,7 @@ public class ArtificalIntelligence extends Player {
             }
         }
 
-        return minMax(possibleBoard, getIcon()).moveToMake;
+        return minMax(possibleBoard, getIcon(), 0).moveToMake;
     }
 
     private PossibleBoard initPossibleBoard(BoardSpace[][] board, Icon icon) {
@@ -87,7 +87,7 @@ public class ArtificalIntelligence extends Player {
                     newBoard = boardClone(board);
                     newPosBoard.board = newBoard;
 
-                    newBoard[row][col].setIcon(icon);
+                    newBoard[row][col].setIcon(icon, false);
 
                     // If the icon used is the players icon, then we get a bonus to our score
                     // If the icon belongs to the opposing player, then we subtract the bonus
@@ -121,36 +121,45 @@ public class ArtificalIntelligence extends Player {
 
     // Returns the coordinates of the best possible move that minimises or maximises the players score depending
     // on the provided icon
-    private Outcome minMax(PossibleBoard posBoard, Icon icon) {
+    private Outcome minMax(PossibleBoard posBoard, Icon icon, int depth) {
         Outcome outcome = new Outcome();
         Result result = posBoard.determineOutcome();
+        boolean maximiseWin = icon == getIcon();
 
         // BASE CASE
         if (result.gameComplete()) {
             outcome.score = result.getBonus();
+            outcome.moveToMake = posBoard.coor;
+            outcome.depth = depth;
             return outcome;
         }
 
-        ArrayList<PossibleBoard> posNextBoards = getPossibleNextBoards(posBoard, getIcon());
-        int optimalScore = (icon == getIcon() ? Integer.MIN_VALUE : Integer.MAX_VALUE);
+        ArrayList<PossibleBoard> posNextBoards = getPossibleNextBoards(posBoard, icon);
+        int optimalScore = (maximiseWin ? Integer.MIN_VALUE : Integer.MAX_VALUE);
         Coordinate optimalCoor = new Coordinate(0,0);
+        int optimalDepth = Integer.MAX_VALUE;
 
         for (PossibleBoard posNextBoard : posNextBoards) {
-            Outcome nextOutcome = minMax(posNextBoard, (icon == Icon.CROSSES ? Icon.NOUGHTS : Icon.CROSSES));
-            //outcome.score += nextOutcome.score;
+            Outcome nextOutcome = minMax(posNextBoard, (icon == Icon.CROSSES ? Icon.NOUGHTS : Icon.CROSSES), depth + 1);
 
-            if (icon == getIcon() && nextOutcome.score > optimalScore) {
-                optimalScore = nextOutcome.score;
-                optimalCoor = posNextBoard.coor;
+            if (maximiseWin && nextOutcome.score >= optimalScore) {
+                if (nextOutcome.score == optimalScore && nextOutcome.depth > optimalDepth) continue;
+                    optimalScore = nextOutcome.score;
+                    optimalCoor = posNextBoard.coor;
+                    optimalDepth = nextOutcome.depth;
 
-            } else if (icon != getIcon() && nextOutcome.score < optimalScore){
-                optimalScore = nextOutcome.score;
-                optimalCoor = posNextBoard.coor;
+            } else if (!maximiseWin && nextOutcome.score <= optimalScore){
+                if (nextOutcome.score == optimalScore && nextOutcome.depth > optimalDepth) continue;
+                    optimalScore = nextOutcome.score;
+                    optimalCoor = posNextBoard.coor;
+                    optimalDepth = nextOutcome.depth;
+
             }
         }
 
         outcome.moveToMake = optimalCoor;
         outcome.score = optimalScore;
+        outcome.depth = optimalDepth;
         return outcome;
     }
 
@@ -195,10 +204,11 @@ public class ArtificalIntelligence extends Player {
     private class Outcome {
         private Coordinate moveToMake;
         private int score;
+        private int depth;
     }
 
     private enum Result {
-        WIN(WIN_BONUS), LOSE(LOSE_BONUS), DRAW(DRAW_BONUS), INCOMPLETE(0);
+        WIN(WIN_BONUS), LOSE(LOSE_BONUS), DRAW(DRAW_BONUS), INCOMPLETE(DRAW_BONUS);
 
         private int bonus;
 
