@@ -67,4 +67,8 @@ public class BoardSpace extends Button {
         });
 
     }
+
+    public String toString() {
+        return (icon == Icon.CROSSES ? "X" : (icon == Icon.NOUGHTS ? "O" : " "));
+    }
 }

@@ -7,6 +7,7 @@ import app.TicTacToeModel;
 
 import javax.crypto.spec.DESedeKeySpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ArtificalIntelligence extends Player {
     private static int SLEEP_TIME = 5000;
@@ -91,9 +92,17 @@ public class ArtificalIntelligence extends Player {
 
                     // If the icon used is the players icon, then we get a bonus to our score
                     // If the icon belongs to the opposing player, then we subtract the bonus
+                    for (int r = 0; r < TicTacToeModel.BOARD_DIMENSION; r++) {
+                        newPosBoard.rowScore[r] = possibleBoard.rowScore[r];
+                    }
+
+                    for (int c = 0; c < TicTacToeModel.BOARD_DIMENSION; c++) {
+                        newPosBoard.colScore[c] = possibleBoard.colScore[c];
+                    }
+
                     int scoreBonus = (icon == getIcon() ? 1 : -1);
-                    newPosBoard.rowScore[row] = possibleBoard.rowScore[row] + scoreBonus;
-                    newPosBoard.colScore[col] = possibleBoard.colScore[col] + scoreBonus;
+                    newPosBoard.rowScore[row] += scoreBonus;
+                    newPosBoard.colScore[col] += scoreBonus;
                     if (row == col) newPosBoard.leftDiagScore = possibleBoard.leftDiagScore + scoreBonus;
                     if (row + col == TicTacToeModel.BOARD_DIMENSION - 1) newPosBoard.rightDiagScore = possibleBoard.rightDiagScore + scoreBonus;
                     newPosBoard.freeSpace = possibleBoard.freeSpace - 1;
@@ -198,6 +207,17 @@ public class ArtificalIntelligence extends Player {
             if (freeSpace == 0) return Result.DRAW;
 
             return Result.INCOMPLETE;
+        }
+
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+
+            for (BoardSpace[] row : board) {
+                sb.append(Arrays.toString(row));
+                sb.append('\n');
+            }
+
+            return sb.toString();
         }
     }
 
