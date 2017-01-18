@@ -32,16 +32,13 @@ public class ArtificalIntelligence extends Player {
             e.printStackTrace();
         }*/
 
-        BoardSpace[][] board = model.getBoard(); // O(1)
-        PossibleBoard possibleBoard = initPossibleBoard(board, getIcon()); // O(n^2)
+        BoardSpace[][] board = model.getBoard();
+        PossibleBoard possibleBoard = initPossibleBoard(board, getIcon());
 
-        if (possibleBoard.freeSpace >= TicTacToeModel.BOARD_DIMENSION*TicTacToeModel.BOARD_DIMENSION-1) {
-            if (board[0][0].getIcon() == Icon.EMPTY) {
-                return new Coordinate(0,0);
-            } else {
-                return new Coordinate(0, TicTacToeModel.BOARD_DIMENSION - 1);
-            }
-        }
+        // Uses basic first move heuristics to determine the optimal first move of an AI
+        // If the AI is playing its second move then firstMove = null
+        Coordinate firstMove = firstMoveHeuristics(model, possibleBoard);
+        if (firstMove != null) return firstMove;
 
         return minMax(possibleBoard, getIcon(), 0).moveToMake;
     }
@@ -71,6 +68,28 @@ public class ArtificalIntelligence extends Player {
         }
 
         return possibleBoard;
+    }
+
+    private Coordinate firstMoveHeuristics(TicTacToeModel model, PossibleBoard possibleBoard) {
+        BoardSpace[][] board = possibleBoard.board;
+
+        if (possibleBoard.freeSpace == TicTacToeModel.BOARD_DIMENSION*TicTacToeModel.BOARD_DIMENSION) {
+            if (board[0][0].getIcon() == Icon.EMPTY) {
+                return new Coordinate(0,0);
+            } else {
+                return new Coordinate(0, TicTacToeModel.BOARD_DIMENSION - 1);
+            }
+        } else if (possibleBoard.freeSpace == TicTacToeModel.BOARD_DIMENSION*TicTacToeModel.BOARD_DIMENSION - 1) {
+            if (model.cornerTaken()) {
+                return new Coordinate(TicTacToeModel.BOARD_DIMENSION/2, TicTacToeModel.BOARD_DIMENSION/2);
+            } else if (board[TicTacToeModel.BOARD_DIMENSION/2][TicTacToeModel.BOARD_DIMENSION/2].getIcon() != Icon.EMPTY) {
+                return new Coordinate(0,0);
+            } else {
+                return model.getCornerNextToEdge();
+            }
+        }
+
+        return null;
     }
 
     private ArrayList<PossibleBoard> getPossibleNextBoards(PossibleBoard possibleBoard, Icon icon) {
@@ -154,13 +173,13 @@ public class ArtificalIntelligence extends Player {
             Outcome nextOutcome = minMax(posNextBoard, (icon == Icon.CROSSES ? Icon.NOUGHTS : Icon.CROSSES), depth + 1);
 
             if (maximiseWin && nextOutcome.score >= optimalScore) {
-                if (nextOutcome.score == optimalScore && nextOutcome.depth > optimalDepth) continue;
+                if (nextOutcome.score == optimalScore && nextOutcome.depth < optimalDepth) continue;
                     optimalScore = nextOutcome.score;
                     optimalCoor = posNextBoard.coor;
                     optimalDepth = nextOutcome.depth;
 
             } else if (!maximiseWin && nextOutcome.score <= optimalScore){
-                if (nextOutcome.score == optimalScore && nextOutcome.depth > optimalDepth) continue;
+                if (nextOutcome.score == optimalScore && nextOutcome.depth < optimalDepth) continue;
                     optimalScore = nextOutcome.score;
                     optimalCoor = posNextBoard.coor;
                     optimalDepth = nextOutcome.depth;

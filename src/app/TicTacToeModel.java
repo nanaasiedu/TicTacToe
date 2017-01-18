@@ -196,4 +196,18 @@ public class TicTacToeModel implements Runnable {
     public void setGameText(String text) {
         controller.setGameText(text);
     }
+
+    public boolean cornerTaken() {
+        return board[0][0].isEmpty() || board[0][BOARD_DIMENSION-1].isEmpty() ||
+               board[BOARD_DIMENSION-1][0].isEmpty() || board[BOARD_DIMENSION-1][BOARD_DIMENSION-1].isEmpty();
+    }
+
+    public Coordinate getCornerNextToEdge() {
+        if (!board[0][BOARD_DIMENSION/2].isEmpty() || !board[BOARD_DIMENSION/2][0].isEmpty())
+            return new Coordinate(0,0);
+        if (!board[0][BOARD_DIMENSION/2].isEmpty() || !board[BOARD_DIMENSION/2][0].isEmpty())
+            return new Coordinate(BOARD_DIMENSION, BOARD_DIMENSION);
+
+        return null;
+    }
 }

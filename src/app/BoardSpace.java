@@ -40,6 +40,8 @@ public class BoardSpace extends Button {
         return icon;
     }
 
+    public boolean isEmpty() { return icon == Icon.EMPTY; }
+
     public void setIcon(Icon icon) {
         this.icon = icon;
         setSpaceImage(icon);
