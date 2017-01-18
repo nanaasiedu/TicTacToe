@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ArtificalIntelligence extends Player {
-    private static int SLEEP_TIME = 5000;
+    private static int SLEEP_TIME = 2500;
     private static int WIN_BONUS = 1;
     private static int DRAW_BONUS = 0;
     private static int LOSE_BONUS = -1;
@@ -26,12 +26,7 @@ public class ArtificalIntelligence extends Player {
 
     @Override
     public Coordinate makeMove(TicTacToeModel model) {
-        /*try {
-            wait(SLEEP_TIME);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-
+        ai_think();
         BoardSpace[][] board = model.getBoard();
         PossibleBoard possibleBoard = initPossibleBoard(board, getIcon());
 
@@ -263,6 +258,14 @@ public class ArtificalIntelligence extends Player {
 
         public boolean gameComplete() {
             return this != INCOMPLETE;
+        }
+    }
+
+    private void ai_think() {
+        try {
+            Thread.sleep(SLEEP_TIME);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
