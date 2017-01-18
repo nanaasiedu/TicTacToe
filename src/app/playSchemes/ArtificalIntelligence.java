@@ -92,19 +92,21 @@ public class ArtificalIntelligence extends Player {
 
                     // If the icon used is the players icon, then we get a bonus to our score
                     // If the icon belongs to the opposing player, then we subtract the bonus
+                    int scoreBonus = (icon == getIcon() ? 1 : -1);
                     for (int r = 0; r < TicTacToeModel.BOARD_DIMENSION; r++) {
                         newPosBoard.rowScore[r] = possibleBoard.rowScore[r];
+                        if (row == r) newPosBoard.rowScore[row] += scoreBonus;
                     }
 
                     for (int c = 0; c < TicTacToeModel.BOARD_DIMENSION; c++) {
                         newPosBoard.colScore[c] = possibleBoard.colScore[c];
+                        if (col == c) newPosBoard.colScore[col] += scoreBonus;;
                     }
 
-                    int scoreBonus = (icon == getIcon() ? 1 : -1);
-                    newPosBoard.rowScore[row] += scoreBonus;
-                    newPosBoard.colScore[col] += scoreBonus;
-                    if (row == col) newPosBoard.leftDiagScore = possibleBoard.leftDiagScore + scoreBonus;
-                    if (row + col == TicTacToeModel.BOARD_DIMENSION - 1) newPosBoard.rightDiagScore = possibleBoard.rightDiagScore + scoreBonus;
+                    newPosBoard.leftDiagScore = possibleBoard.leftDiagScore;
+                    if (row == col) newPosBoard.leftDiagScore += scoreBonus;
+                    newPosBoard.rightDiagScore = possibleBoard.rightDiagScore;
+                    if (row + col == TicTacToeModel.BOARD_DIMENSION - 1) newPosBoard.rightDiagScore += scoreBonus;
                     newPosBoard.freeSpace = possibleBoard.freeSpace - 1;
 
                     possibleNextBoards.add(newPosBoard);
