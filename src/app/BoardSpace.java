@@ -23,9 +23,18 @@ public class BoardSpace extends Button {
         setPrefWidth(DEFAULT_WIDTH);
     }
 
+    public BoardSpace(Icon icon, int row, int col, boolean setImage) {
+        super();
+        setIcon(icon, false);
+        this.row = row;
+        this.col = col;
+        setPrefHeight(DEFAULT_HEIGHT);
+        setPrefWidth(DEFAULT_WIDTH);
+    }
+
     @Override
     public BoardSpace clone() {
-        return new BoardSpace(icon, row, col);
+        return new BoardSpace(icon, row, col, false);
     }
 
     public int getRow() {
@@ -43,8 +52,7 @@ public class BoardSpace extends Button {
     public boolean isEmpty() { return icon == Icon.EMPTY; }
 
     public void setIcon(Icon icon) {
-        this.icon = icon;
-        setSpaceImage(icon);
+        setIcon(icon, true);
     }
 
     public void setIcon(Icon icon, boolean setImage) {
