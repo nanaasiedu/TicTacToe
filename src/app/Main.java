@@ -88,7 +88,7 @@ public class Main extends Application {
 
     public void openGameWindow() {
         try {
-            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/app/views/GameView.fxml"));
+            FXMLLoader loader = new FXMLLoader(Main.class.getResource("/app/views/gameView.fxml"));
             AnchorPane pane = loader.load();
             GridPane gridPane = (GridPane) pane.lookup("#buttonGrid");
             BoardSpace[][] board = model.getBoard();

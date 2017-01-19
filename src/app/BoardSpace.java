@@ -25,7 +25,7 @@ public class BoardSpace extends Button {
 
     public BoardSpace(Icon icon, int row, int col, boolean setImage) {
         super();
-        setIcon(icon, false);
+        setIcon(icon, setImage);
         this.row = row;
         this.col = col;
         setPrefHeight(DEFAULT_HEIGHT);
