@@ -7,13 +7,13 @@ public class PlayerSelectController extends AbstractController {
     @FXML
     public void selectPlayer1() {
         model.setTurn(true);
-        Main.getInstanece().GameWindow();
+        Main.getInstanece().openGameWindow();
     }
 
     @FXML
     public void selectPlayer2() {
         model.setTurn(false);
-        Main.getInstanece().GameWindow();
+        Main.getInstanece().openGameWindow();
     }
 
 }

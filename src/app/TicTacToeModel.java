@@ -11,15 +11,11 @@ public class TicTacToeModel implements Runnable {
 
     // Optimisation that speeds up the isGameOver method at the cost of space
     // Stores the number of icons per row/ column/ diagonal for both players
-    // (Note: space can be saved by useing only 4 variables rather than 8)
-    private int[] player1RowCount = new int[BOARD_DIMENSION];
-    private int[] player1ColCount = new int[BOARD_DIMENSION];
-    private int player1LeftDiagCount = 0;
-    private int player1RightDiagCount = 0;
-    private int[] player2RowCount = new int[BOARD_DIMENSION];
-    private int[] player2ColCount = new int[BOARD_DIMENSION];
-    private int player2LeftDiagCount = 0;
-    private int player2RightDiagCount = 0;
+    // (Note: space can be saved by using only 4 variables rather than 8)
+    private int[] RowCount = new int[BOARD_DIMENSION];
+    private int[] ColCount = new int[BOARD_DIMENSION];
+    private int LeftDiagCount = 0;
+    private int RightDiagCount = 0;
 
     private Player player1;
     private Player player2;
@@ -89,18 +85,18 @@ public class TicTacToeModel implements Runnable {
         board[row][col].setIcon(icon);
 
         if (isPlayer1turn) {
-            player1ColCount[col]++;
-            player1RowCount[row]++;
+            ColCount[col]++;
+            RowCount[row]++;
 
-            if (row == col) player1LeftDiagCount++;
-            if (row + col == BOARD_DIMENSION - 1) player1RightDiagCount++;
+            if (row == col) LeftDiagCount++;
+            if (row + col == BOARD_DIMENSION - 1) RightDiagCount++;
 
         } else {
-            player2ColCount[col]++;
-            player2RowCount[row]++;
+            ColCount[col]--;
+            RowCount[row]--;
 
-            if (row == col) player2LeftDiagCount++;
-            if (row + col == BOARD_DIMENSION - 1) player2RightDiagCount++;
+            if (row == col) LeftDiagCount--;
+            if (row + col == BOARD_DIMENSION - 1) RightDiagCount--;
 
         }
 
@@ -131,6 +127,7 @@ public class TicTacToeModel implements Runnable {
         allowedToMove = false;
     }
 
+    // Starts the game
     public void run() {
         assert (isGameSet());
         Player winner = null;
@@ -160,14 +157,14 @@ public class TicTacToeModel implements Runnable {
 
     private Player isGameOver(int row, int col) {
             if (isPlayer1turn) {
-                if (player1RowCount[row] == BOARD_DIMENSION || player1ColCount[col] == BOARD_DIMENSION
-                        || player1LeftDiagCount == BOARD_DIMENSION || player1RightDiagCount == BOARD_DIMENSION){
+                if (RowCount[row] == BOARD_DIMENSION || ColCount[col] == BOARD_DIMENSION
+                        || LeftDiagCount == BOARD_DIMENSION || RightDiagCount == BOARD_DIMENSION){
                     return player1;
                 }
 
             } else {
-                if (player2RowCount[row] == BOARD_DIMENSION || player2ColCount[col] == BOARD_DIMENSION
-                        || player2LeftDiagCount == BOARD_DIMENSION || player2RightDiagCount == BOARD_DIMENSION){
+                if (RowCount[row] == -BOARD_DIMENSION || ColCount[col] == -BOARD_DIMENSION
+                        || LeftDiagCount == -BOARD_DIMENSION || RightDiagCount == -BOARD_DIMENSION){
                     return player2;
                 }
             }

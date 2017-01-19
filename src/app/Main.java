@@ -8,12 +8,10 @@ import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
@@ -46,10 +44,10 @@ public class Main extends Application {
 
         this.model = new TicTacToeModel();
 
-        mainWindow();
+        openMainWindow();
     }
 
-    public void mainWindow() {
+    public void openMainWindow() {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/app/views/mainView.fxml"));
             AnchorPane pane = loader.load();
@@ -68,7 +66,7 @@ public class Main extends Application {
         }
     }
 
-    public void playerSelectWindow() {
+    public void openPlayerSelectWindow() {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/app/views/playerSelectView.fxml"));
             AnchorPane pane = loader.load();
@@ -88,7 +86,7 @@ public class Main extends Application {
         }
     }
 
-    public void GameWindow() {
+    public void openGameWindow() {
         try {
             FXMLLoader loader = new FXMLLoader(Main.class.getResource("/app/views/GameView.fxml"));
             AnchorPane pane = loader.load();

@@ -4,8 +4,6 @@ import app.BoardSpace;
 import app.Coordinate;
 import app.Icon;
 import app.TicTacToeModel;
-
-import javax.crypto.spec.DESedeKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -38,6 +36,7 @@ public class ArtificalIntelligence extends Player {
         return minMax(possibleBoard, getIcon(), 0).moveToMake;
     }
 
+    // Translates the board into a PossibleBoard class
     private PossibleBoard initPossibleBoard(BoardSpace[][] board, Icon icon) {
         PossibleBoard possibleBoard = new PossibleBoard();
         possibleBoard.board = board;
@@ -65,6 +64,8 @@ public class ArtificalIntelligence extends Player {
         return possibleBoard;
     }
 
+    // Used to speed up the game by allowing the AI to choose optimal first/second moves that will ensure it will never
+    // lose
     private Coordinate firstMoveHeuristics(TicTacToeModel model, PossibleBoard possibleBoard) {
         BoardSpace[][] board = possibleBoard.board;
 
@@ -87,6 +88,7 @@ public class ArtificalIntelligence extends Player {
         return null;
     }
 
+    // Returns all possible boards that can occur out of all possible moves on possibleBoard
     private ArrayList<PossibleBoard> getPossibleNextBoards(PossibleBoard possibleBoard, Icon icon) {
         ArrayList<PossibleBoard> possibleNextBoards = new ArrayList<PossibleBoard>();
         BoardSpace[][] board = possibleBoard.board;
@@ -132,6 +134,7 @@ public class ArtificalIntelligence extends Player {
         return possibleNextBoards;
     }
 
+    // Returns clone of board
     private BoardSpace[][] boardClone(BoardSpace[][] board) {
         BoardSpace[][] newBoard = new BoardSpace[board.length][board[0].length];
 
@@ -169,15 +172,15 @@ public class ArtificalIntelligence extends Player {
 
             if (maximiseWin && nextOutcome.score >= optimalScore) {
                 if (nextOutcome.score == optimalScore && nextOutcome.depth < optimalDepth) continue;
-                    optimalScore = nextOutcome.score;
-                    optimalCoor = posNextBoard.coor;
-                    optimalDepth = nextOutcome.depth;
+                optimalScore = nextOutcome.score;
+                optimalCoor = posNextBoard.coor;
+                optimalDepth = nextOutcome.depth;
 
             } else if (!maximiseWin && nextOutcome.score <= optimalScore){
                 if (nextOutcome.score == optimalScore && nextOutcome.depth < optimalDepth) continue;
-                    optimalScore = nextOutcome.score;
-                    optimalCoor = posNextBoard.coor;
-                    optimalDepth = nextOutcome.depth;
+                optimalScore = nextOutcome.score;
+                optimalCoor = posNextBoard.coor;
+                optimalDepth = nextOutcome.depth;
 
             }
         }
@@ -189,15 +192,19 @@ public class ArtificalIntelligence extends Player {
     }
 
     // Optimisation to avoid O(n^2) algorithm calculating board score
+    // Stores data about the state of the board
     private class PossibleBoard {
         private BoardSpace[][] board;
+        // Used to determine the number of squares per row/ column/ diagonal the AI and its oponent occupys
+        // Helps determine if a row/ column/ diagonal show a winner
         private int[] rowScore = new int[TicTacToeModel.BOARD_DIMENSION];
         private int[] colScore = new int[TicTacToeModel.BOARD_DIMENSION];
         private int leftDiagScore = 0;
         private int rightDiagScore = 0;
         private int freeSpace = TicTacToeModel.BOARD_DIMENSION*TicTacToeModel.BOARD_DIMENSION;
-        private Coordinate coor;
+        private Coordinate coor; // Coordinate of move made to obtain this board
 
+        // Returns result of board
         public Result determineOutcome() {
             for (int row = 0; row < TicTacToeModel.BOARD_DIMENSION; row++) {
                 if (rowScore[row] == TicTacToeModel.BOARD_DIMENSION){
@@ -237,12 +244,15 @@ public class ArtificalIntelligence extends Player {
         }
     }
 
+    // Describes the outcome of a specific move
     private class Outcome {
-        private Coordinate moveToMake;
-        private int score;
-        private int depth;
+        private Coordinate moveToMake; // Coordinate of move that will produce the outcome
+        private int score;             // Score obtained from performing the move that results in the outcome
+        private int depth;             // How deep into the minMax recursion this outcome will occur (i.e. number of turns
+                                       // till outcome can occur)
     }
 
+    // Enum that describes the result of a game
     private enum Result {
         WIN(WIN_BONUS), LOSE(LOSE_BONUS), DRAW(DRAW_BONUS), INCOMPLETE(DRAW_BONUS);
 
@@ -261,6 +271,7 @@ public class ArtificalIntelligence extends Player {
         }
     }
 
+    // Makes the AI sleep for a certain amount of time
     private void ai_think() {
         try {
             Thread.sleep(SLEEP_TIME);

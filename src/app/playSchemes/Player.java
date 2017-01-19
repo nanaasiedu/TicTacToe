@@ -14,6 +14,7 @@ public abstract class Player {
         this.icon = icon;
     }
 
+    // Returns a coordinate of the move the player will make depending on the model
     abstract public Coordinate makeMove(TicTacToeModel model);
 
     abstract public boolean isHuman();
